@@ -1,0 +1,30 @@
+.body {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.boardWrapper {
+    justify-content: center; 
+    align-items: center; 
+    display: flex;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    width: 200px;
+}
+
+.cell {
+    width: 75px;
+    height: 75px;
+    border: 1px solid #333333;
+    cursor: pointer;
+    align-content: center;
+}
+
+.cellImage {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+}
