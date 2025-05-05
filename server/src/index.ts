@@ -18,7 +18,7 @@ app.listen(4000, () => {
 
 app.use('/api', gameRoutes);
 
-const uri = 'mongodb://localhost:27017/gamedb';
+const uri = 'mongodb://localhost:27017/rankLeaderboard';
 
 mongoose.connect(uri)
   .then(() => console.log('Connected to MongoDB ' + uri))
