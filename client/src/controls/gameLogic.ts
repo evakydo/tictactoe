@@ -40,27 +40,18 @@ export const checkMove = (index: number) => {
   if(isPlayersTurn() && isCellAvailable(index)) {
     gameState.boardState[index] = Player.Player1;
     sendMove(index);
-    if(gameState.ongoingGame)
-      return true;
-    else 
-      return false;
+    return gameState.ongoingGame;
   }
   else 
     return false;
 }
 
 const isPlayersTurn = () => {
-  if(gameState.currentPlayer == Player.Player1)
-    return true;
-  else 
-    return false;
+  return gameState.currentPlayer == Player.Player1;
 };
 
 const isCellAvailable = (index: number) => {
-  if(!gameState.boardState[index])
-    return true;
-  else 
-    return false;
+  return !gameState.boardState[index];
 };
 
 export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
@@ -82,7 +73,29 @@ export const checkGameState = async (player: string): Promise<typeof gameState> 
       throw new Error('Server error');
     }
     const data = await response.json();
+    if(data.result === State.Win || data.result === State.Tie) {
+      gameState.currentPlayer = Player.None;
+      gameState.ongoingGame = false;
+      return { currentPlayer: Player.None,
+        boardState: boardState,
+        status: data.result,
+        ongoingGame: false };
+    }
+    else if(player === Player.Player2) {
+      gameState.currentPlayer = Player.Player1;
+    }
+    else if(player === Player.Player1) {
+      gameState.currentPlayer = Player.Player2;
+    }
+    return { currentPlayer: gameState.currentPlayer,
+      boardState: boardState,
+      status: data.result,
+      ongoingGame: true };
   } catch (error) {
+    return { currentPlayer: gameState.currentPlayer,
+      boardState: gameState.boardState,
+      status: gameState.status,
+      ongoingGame: false };
   }
 };
 
