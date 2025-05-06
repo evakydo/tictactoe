@@ -1,25 +1,56 @@
 import sushiImg from "../assets/sushi.png";
 import nigiriImg from "../assets/nigiri.png";
 
+export enum Player {
+  Player1 = 'player1',
+  Player2 = 'player2',
+  None = 'none'
+}
+
+export enum State {
+  Win = 'win',
+  Tie = 'tie',
+  Ongoing = 'ongoing',
+  Fail = 'fail',
+}
+
 export const gameState = {
-  currPlayer: 'you',
-  boardState: Array(9).fill(null)
+  currentPlayer: Player.Player1,
+  boardState: Array(9).fill(null),
+  status: State.Ongoing,
+  ongoingGame: true
 };
 
-export const checkMove = (index: number, cell: Cell) => {
+export function isGameOngoing() {
+  return gameState.ongoingGame;
+}
+
+export const imagesPath = {
+  player1Img: sushiImg,
+  player2Img: nigiriImg,
+};
+
+export type Cell = {
+  id: number;
+  clicked: boolean;
+  img: string;
+};
+
+export const checkMove = (index: number) => {
   if(isPlayersTurn() && isCellAvailable(index)) {
-    //check state of board on the server
-    //return true if game is still on
-    gameState.boardState[index] = 'player';
+    gameState.boardState[index] = Player.Player1;
     sendMove(index);
-    return true;
+    if(gameState.ongoingGame)
+      return true;
+    else 
+      return false;
   }
   else 
     return false;
 }
 
 const isPlayersTurn = () => {
-  if(gameState.currPlayer == 'you')
+  if(gameState.currentPlayer == Player.Player1)
     return true;
   else 
     return false;
@@ -32,44 +63,26 @@ const isCellAvailable = (index: number) => {
     return false;
 };
 
-export const gameController = (index: number) => {
-  checkGameState(index);
-  addMoveToBoard(index);
-};
-
-export const imagesPath = {
-  img1: sushiImg,
-  img2: nigiriImg,
-};
-
-export type Cell = {
-  id: number;
-  clicked: boolean;
-  img: string;
-};
-
 export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
   id: index,
   clicked: false,
   img: ''
 }));
 
-export const checkGameState = async (index: number): Promise<string> => {
+export const checkGameState = async (player: string): Promise<typeof gameState> => {
   try {
-    const response = await fetch('http://localhost:4000/api/gameState', {
+    const boardState = gameState.boardState;
+    const response = await fetch('http://localhost:4000/api/checkGameState', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ index }),
+      body: JSON.stringify({boardState, player}),
     });
 
     if (!response.ok) {
       throw new Error('Server error');
     }
-
     const data = await response.json();
-    return data.message;
   } catch (error) {
-    return 'fail';
   }
 };
 
@@ -87,21 +100,23 @@ export const sendMove = async (index: number): Promise<string> => {
     }
     
     const data = await response.json();
-    console.log(data)
-    
+    if(data.index == -1) {
+      gameState.ongoingGame = false;
+      gameState.currentPlayer = Player.None;
+    }
     return data.index;
   } catch (error) {
     return 'fail';
   }
 };
 
-export const getAIMove = async (index: number): Promise<number> => {
+export const getAIMove = async (): Promise<number> => {
   const boardState = gameState.boardState
   try {
     const response = await fetch('http://localhost:4000/api/AIMove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ index, boardState  }),
+      body: JSON.stringify({ boardState  }),
     });
 
     if (!response.ok) {
@@ -109,13 +124,10 @@ export const getAIMove = async (index: number): Promise<number> => {
     }
     
     const data = await response.json();
-    console.log(data)
-    
+    gameState.boardState[data.index] = Player.Player2;
+
     return data.index;
   } catch (error) {
     return -1;
   }
-};
-
-export const addMoveToBoard = (index: number) => {
 };
