@@ -1,17 +1,29 @@
 const { winningCombinations, Player, State } = require('./constants');
 const Game = require('../models/Game');
 
-exports.playerMove = (req, res) => {
-  const { index, boardState } = req.body;
-  const ongoingGame = checkGameState(boardState, Player.Player1)
-  if(ongoingGame)
-    res.json({ index: index+1 });
-  else
-    res.json({ index: -1 });
+exports.playerMove = async (req, res) => {
+  const { index, boardState, gameId } = req.body;
+
+  try {
+    // Update game in database
+    const { _doc: { _id, ...rest } } = await Game.findByIdAndUpdate(gameId, {
+      board: boardState,
+      currentPlayer: Player.Player2
+    }, { new: true });
+
+    res.json({
+      id: gameId,
+      ...rest
+    });
+
+
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update game state' });
+  }
 };
 
-exports.AIMove = (req, res) => {
-  const { boardState } = req.body;
+exports.AIMove = async (req, res) => {
+  const { boardState, gameId } = req.body;
   let backupIndex;
   for (const combo of winningCombinations) {
     const emptyIndices = combo.filter(index => boardState[index] === null);
@@ -20,28 +32,58 @@ exports.AIMove = (req, res) => {
 
     if (emptyIndices.length === 0) continue;
     backupIndex = emptyIndices[0];
-    if (aIIndices.length >= 1 && playerIndices.length === 0) 
-      return res.json({ index: emptyIndices[0]});
+    if (aIIndices.length >= 1 && playerIndices.length === 0)
+      return res.json({ index: emptyIndices[0] });
   }
-  res.json({ index: backupIndex});
+
+
+  try {
+    await Game.findByIdAndUpdate(gameId, {
+      board: boardState,
+      currentPlayer: Player.Player1
+    });
+
+
+    res.json({ index: backupIndex });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update game state' });
+  }
 };
 
-exports.checkGameState = (req, res) => {
-  const { boardState, player } = req.body;
-  var winner =  winningCombinations.some(combination =>
+exports.checkGameState = async (req, res) => {
+  const { boardState, player, gameId } = req.body;
+  var winner = winningCombinations.some(combination =>
     combination.every(index => boardState[index] === player)
   );
-  if(winner)
-    res.json({ result: State.Win, winner: player });
-  else
-    res.json({ result: State.Ongoing, winner: Player.None});
+
+  try {
+    const nextState = {
+      board: boardState,
+      status: winner ? State.Win : State.Ongoing,
+      winner: winner ? player : Player.None,
+      currentPlayer: player === Player.Player1 ? Player.Player2 : Player.Player1
+    };
+    // Update game state in database
+    const { _doc: { _id, ...rest } } = await Game.findByIdAndUpdate(gameId, {
+      ...nextState
+    }, { new: true })
+
+    //tie missing
+
+    res.json({
+      id: gameId,
+      ...rest
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update game state' });
+  }
 };
 
-function checkGameState(boardState, player) {
-  var winner =  winningCombinations.some(combination =>
+function checkGameStateFn(boardState, player) {
+  var winner = winningCombinations.some(combination =>
     combination.every(index => boardState[index] === player)
   );
-  if(winner)
+  if (winner)
     return false;
   else
     return true;

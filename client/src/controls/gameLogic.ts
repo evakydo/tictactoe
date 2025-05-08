@@ -32,11 +32,6 @@ export type Cell = {
   img: string;
 };
 
-export const checkMove = (index: number) => {
-  if(isPlayersTurn() && isCellAvailable(index)) {
-    gameState.boardState[index] = Player.Player1;
-    sendMove(index);
-    return gameState.ongoingGame;
 export const newGameAI = async (): Promise<any> => {
 
   try {
@@ -55,17 +50,7 @@ export const newGameAI = async (): Promise<any> => {
       gameId: '',
     };
   }
-  else 
-    return false;
 }
-
-const isPlayersTurn = () => {
-  return gameState.currentPlayer == Player.Player1;
-};
-
-const isCellAvailable = (index: number) => {
-  return !gameState.boardState[index];
-};
 
 export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
   id: index,
@@ -73,7 +58,6 @@ export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
   img: ''
 }));
 
-export const checkGameState = async (player: string): Promise<typeof gameState> => {
 export const fetchGame = async (gameId: string): Promise<GameState> => {
   try {
     const response = await fetch(`http://localhost:4000/api/game/${gameId}`, {
@@ -93,84 +77,57 @@ export const fetchGame = async (gameId: string): Promise<GameState> => {
   }
 }
 
+export const checkGameState = async (player: string, gameId: string, boardState: string[]): Promise<any> => {
   try {
-    const boardState = gameState.boardState;
     const response = await fetch('http://localhost:4000/api/checkGameState', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({boardState, player}),
+      body: JSON.stringify({ boardState, player, gameId }),
     });
 
     if (!response.ok) {
       throw new Error('Server error');
     }
     const data = await response.json();
-    if(data.result === State.Win || data.result === State.Tie) {
-      gameState.currentPlayer = Player.None;
-      gameState.ongoingGame = false;
-      return { currentPlayer: Player.None,
-        boardState: boardState,
-        status: data.result,
-        ongoingGame: false };
-    }
-    else if(player === Player.Player2) {
-      gameState.currentPlayer = Player.Player1;
-    }
-    else if(player === Player.Player1) {
-      gameState.currentPlayer = Player.Player2;
-    }
-    return { currentPlayer: gameState.currentPlayer,
-      boardState: boardState,
-      status: data.result,
-      ongoingGame: true };
+    return data;
   } catch (error) {
-    return { currentPlayer: gameState.currentPlayer,
-      boardState: gameState.boardState,
-      status: gameState.status,
-      ongoingGame: false };
+    return {
+    } as any;
   }
 };
 
-export const sendMove = async (index: number): Promise<string> => {
-  const boardState = gameState.boardState
+export const sendMove = async (index: number, gameId: string, boardState: string[]): Promise<string> => {
   try {
     const response = await fetch('http://localhost:4000/api/playerMove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ index, boardState }),
+      body: JSON.stringify({ index, boardState, gameId }),
     });
 
     if (!response.ok) {
       throw new Error('Server error');
     }
-    
+
     const data = await response.json();
-    if(data.index == -1) {
-      gameState.ongoingGame = false;
-      gameState.currentPlayer = Player.None;
-    }
-    return data.index;
+    return data;
   } catch (error) {
     return 'fail';
   }
 };
 
-export const getAIMove = async (): Promise<number> => {
-  const boardState = gameState.boardState
+export const getAIMove = async (gameId: string, boardState: string[]): Promise<number> => {
   try {
     const response = await fetch('http://localhost:4000/api/AIMove', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ boardState  }),
+      body: JSON.stringify({ boardState, gameId }),
     });
 
     if (!response.ok) {
       throw new Error('Server error');
     }
-    
-    const data = await response.json();
-    gameState.boardState[data.index] = Player.Player2;
 
+    const data = await response.json();
     return data.index;
   } catch (error) {
     return -1;
