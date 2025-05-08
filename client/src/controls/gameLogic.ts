@@ -22,8 +22,8 @@ export interface GameState {
 }
 
 export const imagesPath = {
-  player1Img: sushiImg,
-  player2Img: nigiriImg,
+  player1Img: nigiriImg,
+  player2Img: sushiImg,
 };
 
 export type Cell = {
