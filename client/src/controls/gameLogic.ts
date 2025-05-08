@@ -16,26 +16,6 @@ export type Cell = {
   img: string;
 };
 
-export const newGameAI = async (): Promise<any> => {
-
-  try {
-    const response = await fetch('http://localhost:4000/api/game', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (!response.ok) {
-      throw new Error('Server error');
-    }
-    const data = await response.json();
-    
-    return data;
-  } catch (error) {
-    return {
-      gameId: '',
-    };
-  }
-}
-
 export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
   id: index,
   clicked: false,
@@ -44,7 +24,7 @@ export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
 
 export const fetchGame = async (gameId: string): Promise<GameState> => {
   try {
-    const response = await fetch(`http://localhost:4000/api/game/${gameId}`, {
+    const response = await fetch(`${SERVER_URI}/api/game/${gameId}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -52,18 +32,35 @@ export const fetchGame = async (gameId: string): Promise<GameState> => {
     if (!response.ok) {
       throw new Error('Server error');
     }
-    const data = await response.json();
-
-    return data;
+    return await response.json();
   } catch (error) {
     return {
     } as any;
+  }
+};
+
+export const createNewGame = async (): Promise<any> => {
+
+  try {
+    const response = await fetch(`${SERVER_URI}/api/game`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error('Server error');
+    }
+    return await response.json();
+  } catch (error) {
+    return {
+      gameId: '', // fallback
+    };
   }
 }
 
 export const checkGameState = async (player: string, gameId: string, boardState: string[]): Promise<any> => {
   try {
-    const response = await fetch('http://localhost:4000/api/checkGameState', {
+    const response = await fetch(`${SERVER_URI}/api/checkGameState`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ boardState, player, gameId }),
@@ -72,8 +69,7 @@ export const checkGameState = async (player: string, gameId: string, boardState:
     if (!response.ok) {
       throw new Error('Server error');
     }
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     return {
     } as any;
@@ -82,7 +78,7 @@ export const checkGameState = async (player: string, gameId: string, boardState:
 
 export const sendMove = async (index: number, gameId: string, boardState: string[]): Promise<string> => {
   try {
-    const response = await fetch('http://localhost:4000/api/playerMove', {
+    const response = await fetch(`${SERVER_URI}/api/playerMove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ index, boardState, gameId }),
@@ -92,16 +88,15 @@ export const sendMove = async (index: number, gameId: string, boardState: string
       throw new Error('Server error');
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
-    return 'fail';
+    return 'fail'; 
   }
 };
 
-export const getAIMove = async (gameId: string, boardState: string[]): Promise<number> => {
+export const getAIMove = async (gameId: string, boardState: string[]): Promise<any> => {
   try {
-    const response = await fetch('http://localhost:4000/api/AIMove', {
+    const response = await fetch(`${SERVER_URI}/api/AIMove`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ boardState, gameId }),
@@ -110,25 +105,15 @@ export const getAIMove = async (gameId: string, boardState: string[]): Promise<n
     if (!response.ok) {
       throw new Error('Server error');
     }
-
-    const data = await response.json();
-    return data.index;
+    return await response.json();
   } catch (error) {
-    return -1;
+    return {};
   }
 };
 
-export interface PlayerStats {
-  player: string;
-  wins: number;
-  losses: number;
-  draws: number;
-  points: number;
-}
-
 export const getLeaderBoard = async (): Promise<PlayerStats[]> => {
   try {
-    const response = await fetch('http://localhost:4000/api/leaderboard', {
+    const response = await fetch(`${SERVER_URI}/api/leaderboard`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -141,4 +126,4 @@ export const getLeaderBoard = async (): Promise<PlayerStats[]> => {
   } catch (error) {
     return [];
   }
-}
+};

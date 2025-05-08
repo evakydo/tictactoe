@@ -1,4 +1,4 @@
-import { Player } from '../../controls/gameLogic';
+import { Player } from '@/models/player.enum';
 import styles from './TTTCell.module.css';
 
 export const TTTCell = ({ data, currentPlayer, ...rest }: any) => {
