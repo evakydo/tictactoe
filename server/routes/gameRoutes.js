@@ -24,3 +24,4 @@ router.post('/playerMove', gameController.playerMove);
 router.post('/AIMove', gameController.AIMove);
 router.get('/leaderboard', gameController.getLeaderboard)
 
+module.exports = router;

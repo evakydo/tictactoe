@@ -8,7 +8,7 @@ exports.playerMove = async (req, res) => {
     // Update game in database
     const { _doc: { _id, ...rest } } = await Game.findByIdAndUpdate(gameId, {
       board: boardState,
-      currentPlayer: Player.Player2
+      //currentPlayer: Player.Player2
     }, { new: true });
 
     res.json({
@@ -55,12 +55,11 @@ exports.checkGameState = async (req, res) => {
   var winner = winningCombinations.some(combination =>
     combination.every(index => boardState[index] === player)
   );
-
   try {
     const nextState = {
       board: boardState,
       status: winner ? State.Win : State.Ongoing,
-      winner: winner ? player : Player.None,
+      winner: winner ? player : '',
       currentPlayer: player === Player.Player1 ? Player.Player2 : Player.Player1
     };
     // Update game state in database
@@ -78,16 +77,6 @@ exports.checkGameState = async (req, res) => {
     res.status(500).json({ error: 'Failed to update game state' });
   }
 };
-
-function checkGameStateFn(boardState, player) {
-  var winner = winningCombinations.some(combination =>
-    combination.every(index => boardState[index] === player)
-  );
-  if (winner)
-    return false;
-  else
-    return true;
-}
 
 exports.getGameById = async (req, res) => {
   const { gameId } = req.params;
