@@ -1,20 +1,12 @@
-import styled from 'styled-components';
-import { CellImage } from './CellImage';
-import { gameState, Player} from '../../controls/gameLogic';
+import { Player } from '../../controls/gameLogic';
+import styles from './TTTCell.module.css';
 
-export const CellElement = styled.div<{ currplayer: string }>`
-   width: 75px;
-    height: 75px;
-    border: 1px solid #333333;
-    cursor: ${(props) => (props.currplayer === Player.Player1 ? 'pointer' : 'default')};
-    align-content: center;
-`
-// todo any => interface
-export const TTTCell = ({ data, ...rest }: any) => {
-    return <CellElement currplayer={gameState.currentPlayer} { ...rest }>
+export const TTTCell = ({ data, currentPlayer, ...rest }: any) => {
+    return <div className={`${styles.cell} ${currentPlayer === Player.Player1 ? styles.clickable : styles.notClickable}`}
+        {...rest}>
         {data.clicked &&
-            <CellImage
+            <img className={styles.moveImg}
                 src={data.img}
             />}
-    </CellElement>;
+    </div>;
 }

@@ -1,16 +1,17 @@
 import { getLeaderBoard, newGameAI } from '@/controls/gameLogic';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import styles from './HomePage.module.css';
-import { checkMove, Cell, initialCells, getAIMove, gameState, checkGameState, Player, imagesPath, isGameOngoing } from '../controls/gameLogic';
-import { TTTCell } from './components/TTTCell';
 
-const HomePage = () => {
 export const sleep = (ms: number) => new Promise((resolve, reject) => {
   setTimeout(() => {
     resolve(true)
   }, ms)
 })
 
+export default function HomePage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [leaderboard, setLeaderboard] = useState([] as any);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
@@ -84,6 +85,4 @@ export const sleep = (ms: number) => new Promise((resolve, reject) => {
       )}
     </div>
   );
-};
-
-export default HomePage;
+}
