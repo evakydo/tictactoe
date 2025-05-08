@@ -14,15 +14,11 @@ export enum State {
   Fail = 'fail',
 }
 
-export const gameState = {
-  currentPlayer: Player.Player1,
-  boardState: Array(9).fill(null),
-  status: State.Ongoing,
-  ongoingGame: true
-};
-
-export function isGameOngoing() {
-  return gameState.ongoingGame;
+export interface GameState {
+  currentPlayer: Player,
+  boardState: number[],
+  status: State,
+  gameId?: string
 }
 
 export const imagesPath = {
@@ -41,6 +37,23 @@ export const checkMove = (index: number) => {
     gameState.boardState[index] = Player.Player1;
     sendMove(index);
     return gameState.ongoingGame;
+export const newGameAI = async (): Promise<any> => {
+
+  try {
+    const response = await fetch('http://localhost:4000/api/game', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error('Server error');
+    }
+    const data = await response.json();
+    
+    return data;
+  } catch (error) {
+    return {
+      gameId: '',
+    };
   }
   else 
     return false;
