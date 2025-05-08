@@ -74,6 +74,25 @@ export const initialCells: Cell[] = Array.from({ length: 9 }, (_, index) => ({
 }));
 
 export const checkGameState = async (player: string): Promise<typeof gameState> => {
+export const fetchGame = async (gameId: string): Promise<GameState> => {
+  try {
+    const response = await fetch(`http://localhost:4000/api/game/${gameId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error('Server error');
+    }
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return {
+    } as any;
+  }
+}
+
   try {
     const boardState = gameState.boardState;
     const response = await fetch('http://localhost:4000/api/checkGameState', {

@@ -18,6 +18,7 @@ router.post('/game', async (req, res) => {
   }
 });
 
+router.get('/game/:gameId', gameController.getGameById);
 router.post('/checkGameState', gameController.checkGameState);
 router.post('/playerMove', gameController.playerMove);
 router.post('/AIMove', gameController.AIMove);

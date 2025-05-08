@@ -1,4 +1,5 @@
 const { winningCombinations, Player, State } = require('./constants');
+const Game = require('../models/Game');
 
 exports.playerMove = (req, res) => {
   const { index, boardState } = req.body;
@@ -45,6 +46,29 @@ function checkGameState(boardState, player) {
   else
     return true;
 }
+
+exports.getGameById = async (req, res) => {
+  const { gameId } = req.params;
+
+  try {
+    const game = await Game.findById(gameId);
+
+    if (!game) {
+      return res.status(404).json({ error: 'Game not found' });
+    }
+
+    res.json({
+      id: game._id,
+      board: game.board,
+      currentPlayer: game.currentPlayer,
+      status: game.status,
+      winner: game.winner,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch game' });
+  }
+};
+
 exports.getLeaderboard = async (req, res) => {
   try {
     // Get all games
