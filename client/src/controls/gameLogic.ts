@@ -1,25 +1,9 @@
 import sushiImg from "../assets/sushi.png";
 import nigiriImg from "../assets/nigiri.png";
+import { PlayerStats } from "@/models/playerStats.interface";
+import { GameState } from "@/models/gameState.interface";
 
-export enum Player {
-  Player1 = 'player1',
-  Player2 = 'player2',
-  None = 'none'
-}
-
-export enum State {
-  Win = 'win',
-  Tie = 'tie',
-  Ongoing = 'ongoing',
-  Fail = 'fail',
-}
-
-export interface GameState {
-  currentPlayer: Player,
-  boardState: number[],
-  status: State,
-  gameId?: string
-}
+const SERVER_URI = process.env.NEXT_PUBLIC_SERVER_URI;
 
 export const imagesPath = {
   player1Img: nigiriImg,
