@@ -20,6 +20,39 @@
 
 .none {
     background-color: rgb(255, 255, 183);
+
+.leaderboardWrapper {
+  margin-top: 2.5rem;
+  background: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  min-width: 340px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 0.5rem;
+  text-align: center;
+}
+
+.table th {
+  background: #f1f5fa;
+  color: #22223b;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e7ef;
+}
+
+.table tr:nth-child(even) {
+  background: #f7fafc;
+}
+
 }
 
 .board {

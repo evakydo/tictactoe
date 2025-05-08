@@ -1,4 +1,4 @@
-const { winningCombinations, Player, State} = require('./constants');
+const { winningCombinations, Player, State } = require('./constants');
 
 exports.playerMove = (req, res) => {
   const { index, boardState } = req.body;
@@ -45,3 +45,48 @@ function checkGameState(boardState, player) {
   else
     return true;
 }
+exports.getLeaderboard = async (req, res) => {
+  try {
+    // Get all games
+    const allGames = await Game.find({});
+
+    // Filter out ongoing games
+    const completedGames = allGames.filter(game => game.status !== State.Ongoing);
+
+    // Initialize stats object
+    const stats = {
+      player1: { wins: 0, losses: 0, draws: 0, points: 0 },
+      player2: { wins: 0, losses: 0, draws: 0, points: 0 }
+    };
+
+    // Calculate stats
+    completedGames.forEach(game => {
+      if (game.status === State.Win) {
+        if (game.winner === Player.Player1) {
+          stats.player1.wins++;
+          stats.player2.losses++;
+        } else if (game.winner === Player.Player2) {
+          stats.player2.wins++;
+          stats.player1.losses++;
+        }
+      } else if (game.status === State.Draw) {
+        stats.player1.draws++;
+        stats.player2.draws++;
+      }
+    });
+
+    // Convert to array and sort by points
+    const leaderboard = [
+      { player: 'Player 1', ...stats.player1 },
+      { player: 'Player 2', ...stats.player2 }
+    ].sort((a, b) => b.points - a.points);
+
+    res.json({
+      leaderboard,
+      totalGames: completedGames.length
+    });
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+};

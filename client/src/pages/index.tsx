@@ -37,6 +37,9 @@ const HomePage = () => {
         setCurrPlayer(isGameOngoing.currentPlayer);
         setCurrMatch(isGameOngoing.ongoingGame);
       }
+  const [leaderboard, setLeaderboard] = useState([] as any);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
     }
   };
 
@@ -64,6 +67,34 @@ const HomePage = () => {
       )}
       {!currMatch  && (
       <h2>Game over</h2>
+      {showLeaderboard && (
+        <div className={styles.leaderboardWrapper}>
+          <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Leaderboard</h2>
+          {leaderboardLoading ? (
+            <div>Loading leaderboard...</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Wins</th>
+                  <th>Draws</th>
+                  <th>Losses</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.map((entry, idx) => (
+                  <tr key={idx}>
+                    <td>{entry.player}</td>
+                    <td>{entry.wins}</td>
+                    <td>{entry.draws}</td>
+                    <td>{entry.losses}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       )}
     </div>
   );

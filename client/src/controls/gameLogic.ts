@@ -144,3 +144,28 @@ export const getAIMove = async (): Promise<number> => {
     return -1;
   }
 };
+
+export interface PlayerStats {
+  player: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  points: number;
+}
+
+export const getLeaderBoard = async (): Promise<PlayerStats[]> => {
+  try {
+    const response = await fetch('http://localhost:4000/api/leaderboard', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+      throw new Error('Server error');
+    }
+    const resp = await response.json();
+    return resp.leaderboard;
+  } catch (error) {
+    return [];
+  }
+}

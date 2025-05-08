@@ -6,13 +6,5 @@ const Leaderboard = require('../models/Leaderboard');
 router.post('/checkGameState', gameController.checkGameState);
 router.post('/playerMove', gameController.playerMove);
 router.post('/AIMove', gameController.AIMove);
-router.get('/leaderboard', async (req, res) => {
-    try {
-      const games = await Leaderboard.find();
-      res.json(games);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-  
-module.exports = router;
+router.get('/leaderboard', gameController.getLeaderboard)
+
